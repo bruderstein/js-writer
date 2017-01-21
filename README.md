@@ -23,6 +23,26 @@ console.log(stringRepesentation);
 // {a:42,b:"foo","big-string":"an ES6 string\nwith line breaks",getMagic:function () { return 42; }}
 
 ```
+
+## Custom handling for functions and dates
+
+Passing a `handlers` object in the options with the (optional) keys of `date` or `function` allows
+you to override the behaviour of these types. The function receives the value, and should return a 
+string of the string representation required.
+
+```js
+
+var s = jsWriter({ f: function foo(a, b) { return a + b; } }, {
+  handlers: {
+    'function': function (funcValue) {
+      return JSON.stringify({ type: 'function', name: funcValue.name });
+    }
+  }
+});
+
+// s == '{f:{"type":"function","name":"foo"}}'
+```
+
 ## Differences to `JSON.stringify`
 
 The output _is not JSON_, it is JavaScript, so object keys that do not need to be quoted aren't, and functions are outputted as interpretable functions (note that normal unbound functions use the native `.toString()` implementation, so include their source). Dates are recreated by parsing the `.toISOString()` output (this is done to aid readability, rather than using the native `.getTime()` value).

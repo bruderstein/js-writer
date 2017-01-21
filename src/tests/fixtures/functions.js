@@ -14,5 +14,6 @@ module.exports = {
   namedContentArgs: function doStuff(a, b) { return a + b; },
   bound: bound1.bind(someObject),
   boundContent: bound2.bind(someObject),
-  boundContentArgs: bound3.bind(someObject)
+  boundContentArgs: bound3.bind(someObject),
+  boundAndWritten: function bound3() { /* bound - native code */ }
 };

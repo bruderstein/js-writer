@@ -1,7 +1,10 @@
 
 var jsWriter = require('../index');
 var functions = require('./fixtures/functions');
+var Module = require('module');
+var mockFs = require('mock-fs');
 var unexpected = require('unexpected');
+var fs = require('fs');
 
 var expect = unexpected.clone();
 
@@ -119,6 +122,37 @@ string`;
     expect(jsWriter(functions.boundContentArgs), 'to equal', 'function bound3() { /* bound - native code */ }')
   });
   
+  it('creates the same text from a bound function that has been evaled', function () {
+    var boundFunctionString = jsWriter(functions.boundContentArgs);
+    
+    // Look away now
+    var reinterpretedFunction;
+    eval('reinterpretedFunction = ' + boundFunctionString);
+    // You can look back now.
+    
+    var rereadFunctionString = jsWriter(reinterpretedFunction);
+    expect(rereadFunctionString, 'to equal', boundFunctionString);
+  });
+  
+  describe('using Module.load', function () {
+    beforeEach(function () {
+      mockFs();
+    });
+    
+    afterEach(function () {
+      mockFs.restore();
+    });
+  
+    it('creates the same text from a bound function that has been read in via Module.load', function () {
+      var original = jsWriter(functions.boundContentArgs);
+      fs.writeFileSync('/tmp/func.js', 'module.exports = { f: ' + original + ' };');
+      var tempModule = new Module('/tmp/func.js', null);
+      tempModule.load('/tmp/func.js');
+      expect(jsWriter(tempModule.exports.f), 'to equal', original);
+      expect(jsWriter(functions.boundAndWritten), 'to equal', 'function bound3() { /* bound - native code */ }')
+    });
+  });
+  
   it('outputs a UTC date', function () {
     expect(jsWriter(new Date(Date.parse('2016-10-16T14:00:30Z'))), 'to equal', 'new Date(Date.parse("2016-10-16T14:00:30.000Z"))')
   });
@@ -134,5 +168,35 @@ with line breaks`,
     });
     
     expect(stringRepresentation, 'to equal', '{a:42,b:"foo","big-string":"an ES6 string\\nwith line breaks",getMagic:function () { return 42; }}')
+  });
+  
+  it('uses a given handler to write a Date', function () {
+    const obj = {
+      str: 'foo',
+      dt: new Date(2016, 5, 22)
+    };
+    const options = {
+      handlers: {
+        'date': function (dt) {
+          return 'new Date(' + dt.getTime() + ')';
+        }
+      }
+    };
+    expect(jsWriter(obj, options), 'to equal', '{dt:new Date(' + new Date(2016, 5, 22).getTime() + '),str:"foo"}');
+  });
+  
+  it('uses a given handler to write a function', function () {
+    const obj = {
+      str: 'foo',
+      func: function foo(a, b) { return a + b; }
+    };
+    const options = {
+      handlers: {
+        'function': function (func) {
+          return '"FUNC:' + func.name + '"';
+        }
+      }
+    }
+    expect(jsWriter(obj, options), 'to equal', '{func:"FUNC:foo",str:"foo"}');
   });
 });

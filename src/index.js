@@ -4,8 +4,9 @@ var JS_VAR_ALLOWED = /^[a-zA-Z$_][a-zA-Z0-9$_]*$/;
 function jsWriter(value, options) {
   var output = [];
   options = options || {};
+  options.handlers = options.handlers || {};
   appendOutput(output, value, options);
-  return output.join('');
+  return output.filter(function (str) { return str != null; }).join('');
 }
 
 function appendOutput(output, value, options) {
@@ -32,6 +33,10 @@ function appendOutput(output, value, options) {
       if (Array.isArray(value)) {
         outputArray(output, value, options);
       } else if (value && Object.getPrototypeOf(value) == Date.prototype) {
+        if (options.handlers.date) {
+          output.push(options.handlers.date(value))
+          break;
+        }
         outputDate(output, value, options);
       } else {
         outputObject(output, value, options);
@@ -39,6 +44,11 @@ function appendOutput(output, value, options) {
       break;
       
     case 'function':
+      if (options.handlers['function']) {
+        output.push(options.handlers['function'](value));
+        break;
+      }
+      
       if (value.name && value.name.substr(0, 'bound '.length) === 'bound ') {
         output.push('function ', value.name.substr('bound '.length), '(');
         output.push(') { /* bound - native code */ }');
