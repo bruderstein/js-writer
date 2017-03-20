@@ -26,6 +26,14 @@ describe('js-writer', function () {
   it('outputs null', function () {
     expect(jsWriter(null), 'to equal', 'null');
   });
+
+  it('outputs true', function () {
+    expect(jsWriter(true), 'to equal', 'true');
+  });
+  
+  it('outputs false', function () {
+    expect(jsWriter(false), 'to equal', 'false');
+  });
   
   it('outputs a string', function () {
     expect(jsWriter('foo'), 'to equal', '"foo"');

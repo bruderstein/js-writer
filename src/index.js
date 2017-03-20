@@ -19,6 +19,10 @@ function appendOutput(output, value, options) {
     case 'string':
       output.push(JSON.stringify(value));
       break;
+
+    case 'boolean':
+      output.push(JSON.stringify(value));
+      break;
       
     case 'undefined':
       output.push('undefined');
