@@ -144,7 +144,9 @@ string`;
   
   describe('using Module.load', function () {
     beforeEach(function () {
-      mockFs();
+      mockFs({
+        'tmp': {}
+      });
     });
     
     afterEach(function () {
@@ -153,9 +155,9 @@ string`;
   
     it('creates the same text from a bound function that has been read in via Module.load', function () {
       var original = jsWriter(functions.boundContentArgs);
-      fs.writeFileSync('/tmp/func.js', 'module.exports = { f: ' + original + ' };');
+      fs.writeFileSync('tmp/func.js', 'module.exports = { f: ' + original + ' };');
       var tempModule = new Module('/tmp/func.js', null);
-      tempModule.load('/tmp/func.js');
+      tempModule.load('tmp/func.js');
       expect(jsWriter(tempModule.exports.f), 'to equal', original);
       expect(jsWriter(functions.boundAndWritten), 'to equal', 'function bound3() { /* bound - native code */ }')
     });
