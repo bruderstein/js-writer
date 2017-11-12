@@ -24,7 +24,7 @@ console.log(stringRepesentation);
 
 ```
 
-## Custom handling for functions and dates
+## Custom handling for functions, dates and symbols
 
 Passing a `handlers` object in the options with the (optional) keys of `date` or `function` allows
 you to override the behaviour of these types. The function receives the value, and should return a 

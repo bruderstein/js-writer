@@ -10,7 +10,8 @@ module.exports = function () {
     ],
     tests: ['src/**/tests/*.spec.js'],
     env: {
-      type: 'node'
+      type: 'node',
+      runner: 'node'
     }
   }
 };

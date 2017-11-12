@@ -207,4 +207,27 @@ with line breaks`,
     }
     expect(jsWriter(obj, options), 'to equal', '{func:"FUNC:foo",str:"foo"}');
   });
+
+  it('outpus a Symbol.for', function () {
+    const obj = {
+      sym: Symbol.for('foo')
+    };
+    expect(jsWriter(obj), 'to equal', '{sym:Symbol.for("foo")}');
+  });
+
+  it('outputs a normal symbol', function () {
+    const obj = {
+      sym: Symbol('foo')
+    };
+    // There's no way to serialise a symbol, so we'll just serialise it so it comes back a symbol
+    expect(jsWriter(obj), 'to equal', '{sym:Symbol("foo")}');
+  });
+
+  it('outputs a symbol without a name', function () {
+    const obj = {
+      sym: Symbol()
+    };
+    // There's no way to serialise a symbol, so we'll just serialise it so it comes back a symbol
+    expect(jsWriter(obj), 'to equal', '{sym:Symbol()}');
+  });
 });

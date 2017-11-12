@@ -59,6 +59,29 @@ function appendOutput(output, value, options) {
       } else {
         output.push(value.toString())
       }
+      break;
+
+    case 'symbol':
+      if (options.handlers.symbol) {
+        output.push(options.handlers.symbol(value));
+        break;
+      }
+      var keyName = Symbol.keyFor(value);
+      if (keyName !== undefined) {
+        output.push('Symbol.for(');
+        output.push(JSON.stringify(keyName));
+        output.push(')');
+      } else {
+        var symbolName = value.toString();
+        var match = /^Symbol\((.+)\)$/.exec(symbolName);
+        if (match) {
+          output.push('Symbol(');
+          output.push(JSON.stringify(match[1]));
+          output.push(')');
+        } else {
+          output.push('Symbol()');
+        }
+      }
   }
 }
 
